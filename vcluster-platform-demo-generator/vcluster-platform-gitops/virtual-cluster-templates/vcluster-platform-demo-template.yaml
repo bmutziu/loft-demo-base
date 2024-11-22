@@ -48,8 +48,7 @@ spec:
               vault: '{{ .Values.vault }}'
             annotations:
               loft.sh/custom-links: >-
-                https://{{ .Values.loft.virtualClusterName }}.{{
-                .Values.loft.clusterAnnotations.domain }}
+                https://{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
         apps:
           - name: vcluster-platform-demo
             namespace: loft
@@ -58,8 +57,7 @@ spec:
               uiLogoURL: '{{ .Values.uiLogoURL }}'
               logoBackgroundColor: '{{ .Values.logoBackgroundColor }}'
               domain: >-
-                {{ .Values.loft.virtualClusterName }}.{{
-                .Values.loft.clusterAnnotations.domain }}
+                {{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
           - name: vcluster-platform-demo-configure-admins
             namespace: loft
             parameters: |

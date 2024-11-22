@@ -10,6 +10,7 @@ spec:
   quotas: {}
   allowedClusters:
     - name: loft-cluster
+    - name: vcluster-test-bis
   allowedRunners:
     - name: '*'
   allowedTemplates:

@@ -25,12 +25,9 @@ spec:
           repoURL: https://charts.loft.sh/
         values: |-
           admin:
-            create: false
+            create: true
+            username: admin
 
-          isolation:
-            enabled: true
-            networkPolicy:
-              enabled: false
           resources:
             requests:
               memory: 1Gi
@@ -41,11 +38,24 @@ spec:
 
           ingress:
             enabled: true
+            annotations:
+              cert-manager.io/cluster-issuer: lets-encrypt-http-issuer
             ingressClass: nginx
             host: "{{ .Values.domain }}"
             tls:
               enabled: true
-              secret: ""
+              secret: "vcluster-platform-tls"
+
+          certIssuer:
+            create: true # Change this if you already have your own cert-issuer
+            name: lets-encrypt-http-issuer
+            email: "b.mutiu@deepsea.ai" # REQUIRED
+            secretName: vcluster-platform-letsencrypt-credentials
+            httpResolver:
+              enabled: true
+              ingressClass: nginx
+            resolvers: []
+            server: https://acme-v02.api.letsencrypt.org/directory
 
           envValueFrom:
             CLIENT_SECRET:

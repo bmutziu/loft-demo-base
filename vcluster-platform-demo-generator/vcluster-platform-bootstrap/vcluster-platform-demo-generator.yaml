@@ -116,8 +116,7 @@ spec:
             namespace: argocd
             parameters: |
               virtualClusterDomain: >-
-                {{ .Values.loft.virtualClusterName }}.{{
-                .Values.loft.clusterAnnotations.domain }}
+                {{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
         objects: |
           apiVersion: v1
           kind: Namespace
