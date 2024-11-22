@@ -23,7 +23,7 @@ spec:
       name: REPO_NAME-{{name}}
     spec:
       destination:
-        # {{server}} is the url of the 
+        # {{server}} is the url of the Kubernetes API server
         server: '{{server}}'
         # {{metadata.labels.env}} is the value of the env label that is being used to select kubernetes clusters 
         # and used as sub-folder in the target git repository

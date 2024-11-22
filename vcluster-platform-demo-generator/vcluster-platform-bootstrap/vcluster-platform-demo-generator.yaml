@@ -18,7 +18,8 @@ spec:
     pro: {}
     helmRelease:
       chart:
-        version: 0.20.0-beta.12
+        name: vcluster
+        version: 0.21.0
       values: |-
         sync:
           toHost:
@@ -35,16 +36,14 @@ spec:
           metadata:
             annotations:
               loft.sh/custom-links: >-
-                https://{{ .Values.loft.virtualClusterName }}.{{
-                .Values.loft.clusterAnnotations.domain }}
+                https://{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
         apps:
           - name: demo-vcluster-platform
             namespace: loft
-            version: 4.0.0-beta.1
+            version: 4.1.0
             parameters: |
               domain: >-
-                {{ .Values.loft.virtualClusterName }}.{{
-                .Values.loft.clusterAnnotations.domain }}
+                {{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
               uiLogoURL: '{{ .Values.uiLogoURL }}'
           - name: demo-vcluster-platform-configure-admins
             namespace: loft
@@ -60,7 +59,7 @@ spec:
                     application.resourceTrackingMethod: annotation
                   params:
                     "server.insecure": true
-                    timeout.reconciliation: 0 
+                    timeout.reconciliation: 0
                   rbac:
                     policy.csv: |-
                       g, Administration, role:admin
@@ -71,17 +70,28 @@ spec:
                     enabled: true
                     annotations:
                       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+                      cert-manager.io/cluster-issuer: lets-encrypt-http-issuer
                       nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
                     ingressClassName: "nginx"
-                    hostname: argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    hostname: argocd-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
                     tls: true
                   ingressGrpc:
                     enabled: true
-                    annotations: 
+                    annotations:
+                      cert-manager.io/cluster-issuer: lets-encrypt-http-issuer
                       nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
                     ingressClassName: "nginx"
-                    hostname: argocd-grpc-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    hostname: argocd-grpc-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
                     tls: true
+                  certificate:
+                    enabled: true
+                    domain: argocd-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+                    additionalHosts:
+                      - argocd-grpc-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+                    issuer:
+                      group: "cert-manager.io"
+                      kind: "ClusterIssuer"
+                      name: "lets-encrypt-http-issuer"
                 ## ApplicationSet controller
                 applicationSet:
                   enabled: true
@@ -90,14 +100,18 @@ spec:
                     ingressClassName: "nginx"
                     annotations:
                       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-                    hostname: argocd-appset-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    hostname: argocd-appset-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
                     tls: true
+                  certificate:
+                    enabled: true
+                    domain: argocd-appset-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+                    issuer:
+                      group: "cert-manager.io"
+                      kind: "ClusterIssuer"
+                      name: "lets-encrypt-http-issuer"
           - name: demo-crossplane
             namespace: crossplane-system
             version: 1.16.0
-          - name: komoplane
-            namespace: crossplane-system
-            version: 0.1.5
           - name: demo-hvc-platform-gitops
             namespace: argocd
             parameters: |
@@ -118,19 +132,6 @@ spec:
             labels:
               loft.sh/project-secret-name: oidc-secret
           type: Opaque
-          ---
-          apiVersion: v1
-          kind: Secret
-          metadata:
-            name: loft-cert
-            namespace: loft
-            labels:
-              loft.sh/project-secret-name: vcluster-pro-license-cert
-          data:
-            ca.crt: ""
-            tls.crt: ""
-            tls.key: ""
-          type: kubernetes.io/tls
           ---
           apiVersion: v1
           kind: Secret
@@ -176,7 +177,7 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            version: 0.20.0-beta.12
+            version: 0.21.0
           values: |
             external:
               platform:
@@ -200,6 +201,10 @@ spec:
                     enabled: true
               coredns:
                 embedded: true
+              statefulSet:
+                persistence:
+                  volumeClaim:
+                    storageClass: "gp2"  
         accessPoint:
           ingress: {}
         spaceTemplate:
@@ -221,9 +226,11 @@ spec:
           defaultValue: v1.29.6
         - variable: branch
           label: vCluster Platform GitOps Repo Branch
-          description: Allows overriding the default branch used for the vCluster Platform Demo Generator GitOps repository
+          description: >-
+            Allows overriding the default branch used for the vCluster Platform
+            Demo Generator GitOps repository
           defaultValue: main
-      version: 4.0.0
+      version: 4.1.0
     - template:
         metadata:
           annotations:

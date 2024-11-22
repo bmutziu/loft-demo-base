@@ -8,7 +8,7 @@ spec:
     vCluster Platform for the vCluster Platform Hierarchical Demo Environment
     generator template.
   owner:
-    user: kurtmadel
+    user: admin
   recommendedApp:
     - virtualcluster
   defaultNamespace: loft
@@ -22,24 +22,33 @@ spec:
       config:
         chart:
           name: vcluster-platform
-          version: 4.0.0-beta.1
+          version: 4.1.0
           repoURL: https://charts.loft.sh/
         values: |-
           admin:
-            create: false
-
-          isolation:
-            enabled: true
-            networkPolicy:
-              enabled: false
+            create: true
+            password: PLACEHOLDER
 
           ingress:
             enabled: true
+            annotations:
+              cert-manager.io/cluster-issuer: lets-encrypt-http-issuer
             ingressClass: nginx
             host: "{{ .Values.domain }}"
             tls:
               enabled: true
-              secret: ""
+              secret: "vcluster-platform-tls"
+
+          certIssuer:
+            create: true # Change this if you already have your own cert-issuer
+            name: lets-encrypt-http-issuer
+            email: "b.mutiu@deepsea.ai" # REQUIRED
+            secretName: vcluster-platform-letsencrypt-credentials
+            httpResolver:
+              enabled: true
+              ingressClass: nginx
+            resolvers: []
+            server: https://acme-v02.api.letsencrypt.org/directory
 
           envValueFrom:
             CLIENT_SECRET:
@@ -80,4 +89,4 @@ spec:
           label: Logo logoURL
           description: Will update the vCluster Platform config ui settings logoURL
           defaultValue: https://www.vcluster.com/pro/docs/media/vclusterpro_orange.svg
-      version: 4.0.0-beta.1
+      version: 4.1.0

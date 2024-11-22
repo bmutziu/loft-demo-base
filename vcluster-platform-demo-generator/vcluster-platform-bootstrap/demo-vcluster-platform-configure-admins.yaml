@@ -59,7 +59,6 @@ spec:
         kubectl annotate clusters loft-cluster domainPrefix={{
         .Values.loft.virtualClusterName }}
 
-        kubectl annotate clusters loft-cluster domain={{
-        .Values.loft.clusterAnnotations.domain }}
+        kubectl annotate clusters loft-cluster domain=test.deepseadevops.net
 
-        kubectl delete project default
+        # kubectl delete project default

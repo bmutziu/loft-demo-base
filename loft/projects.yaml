@@ -13,6 +13,7 @@ spec:
       count/virtualclusterinstances: '4'
   allowedClusters:
     - name: loft-cluster
+    - name: vcluster-test-bis
   allowedTemplates:
     - kind: VirtualClusterTemplate
       group: storage.loft.sh
@@ -20,6 +21,9 @@ spec:
     - kind: VirtualClusterTemplate
       group: storage.loft.sh
       name: preview-template
+    - kind: VirtualClusterTemplate
+      group: storage.loft.sh
+      name: vcluster-platform-demo-generator
   requireTemplate: {}
   members:
     - kind: Team
@@ -56,7 +60,7 @@ spec:
       enabled: true
     sso:
       enabled: true
-      host: https://argocd-REPLACE_BASE_DOMAIN/
+      host: https://argocd-vcluster-platform.test.deepseadevops.net/
       assignedRoles:
         - role:admin
 ---
@@ -118,6 +122,6 @@ spec:
     namespace: argocd
     sso:
       enabled: true
-      host: https://argocd-REPLACE_BASE_DOMAIN/
+      host: https://argocd-vcluster-platform.test.deepseadevops.net/
       assignedRoles:
         - role:admin
