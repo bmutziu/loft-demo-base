@@ -498,21 +498,21 @@ spec:
         kubectl delete pod -n argocd $POD
 
 
-        cat <<EOF | kubectl apply -f -
+        #cat <<EOF | kubectl apply -f -
 
-        apiVersion: demo.loft.sh/v1alpha1
+        #apiVersion: demo.loft.sh/v1alpha1
 
-        kind: DemoRepository
+        #kind: DemoRepository
 
-        metadata:
-          name: github-repo
-          namespace: default
-        spec:
-          name: "{{ .Values.loft.virtualClusterName }}-app"
-          loftDemoDomain: "{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
-          virtualClusterName: "{{ .Values.loft.virtualClusterName }}"
-          virtualClusterNamespace: "{{ .Values.loft.virtualClusterNamespace }}"
-        EOF
+        #metadata:
+        #  name: github-repo
+        #  namespace: default
+        #spec:
+        #  name: "{{ .Values.loft.virtualClusterName }}-app"
+        #  loftDemoDomain: "{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+        #  virtualClusterName: "{{ .Values.loft.virtualClusterName }}"
+        #  virtualClusterNamespace: "{{ .Values.loft.virtualClusterNamespace }}"
+        #EOF
 
 
         while ! kubectl get secret ghcr-login-secret -n loft; do
@@ -523,57 +523,57 @@ spec:
         PULL_SECRET=$(kubectl get secret ghcr-login-secret -n loft -o
         jsonpath="{.data['\.dockerconfigjson']}")
 
-        #cat <<EOF | kubectl apply -f -
+        cat <<EOF | kubectl apply -f -
 
-        #apiVersion: argoproj.io/v1alpha1
+        apiVersion: argoproj.io/v1alpha1
 
-        #kind: Application
+        kind: Application
 
-        #metadata:
-        #  name: vcluster-gitops
-        #  namespace: argocd
-        #spec:
-        #  destination:
-        #    server: https://kubernetes.default.svc
-        #  project: default
-        #  source:
-        #    path: vcluster-gitops
-        #    repoURL: https://github.com/loft-demos/{{ .Values.loft.virtualClusterName }}-app.git
-        #    targetRevision: HEAD
-        #    kustomize:
-        #      patches:
-        #        - target:
-        #            kind: SharedSecret
-        #            name: ghcr-login-secret
-        #          patch: |-
-        #            - op: replace
-        #              path: /spec/data/.dockerconfigjson
-        #              value: $PULL_SECRET
-        #        - target:
-        #            kind: Project
-        #            name: auth-core
-        #          patch: |-
-        #            - op: replace
-        #              path: /spec/argoCD/sso/host
-        #              value: "https://argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}"
-        #        - target:
-        #            kind: Project
-        #            name: default
-        #          patch: |-
-        #            - op: replace
-        #              path: /spec/argoCD/sso/host
-        #              value: "https://argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}"
-        #        - target:
-        #            kind: Project
-        #            name: api-framework
-        #          patch: |-
-        #            - op: replace
-        #              path: /spec/argoCD/sso/host
-        #              value: "https://argocd-api-framework-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}"
-        #  syncPolicy:
-        #    automated:
-        #      prune: true
-        #EOF
+        metadata:
+          name: vcluster-gitops
+          namespace: argocd
+        spec:
+          destination:
+            server: https://kubernetes.default.svc
+          project: default
+          source:
+            path: vcluster-gitops
+            repoURL: https://github.com/bmutziu/{{ .Values.loft.virtualClusterName }}-app.git
+            targetRevision: HEAD
+            kustomize:
+              patches:
+                - target:
+                    kind: SharedSecret
+                    name: ghcr-login-secret
+                  patch: |-
+                    - op: replace
+                      path: /spec/data/.dockerconfigjson
+                      value: $PULL_SECRET
+                - target:
+                    kind: Project
+                    name: auth-core
+                  patch: |-
+                    - op: replace
+                      path: /spec/argoCD/sso/host
+                      value: "https://argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}"
+                - target:
+                    kind: Project
+                    name: default
+                  patch: |-
+                    - op: replace
+                      path: /spec/argoCD/sso/host
+                      value: "https://argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}"
+                - target:
+                    kind: Project
+                    name: api-framework
+                  patch: |-
+                    - op: replace
+                      path: /spec/argoCD/sso/host
+                      value: "https://argocd-api-framework-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}"
+          syncPolicy:
+            automated:
+              prune: true
+        EOF
 
 
         #cat <<EOF | kubectl apply -f -
