@@ -69,7 +69,7 @@ spec:
             parameters: |
               appValues: |-
                 global:
-                  domain: argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                  domain: argocd-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
                 configs:
                   cm:
                     create: true
@@ -89,17 +89,27 @@ spec:
                     enabled: true
                     annotations:
                       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+                      cert-manager.io/cluster-issuer: lets-encrypt-http-issuer
                       nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
                     ingressClassName: "nginx"
-                    hostname: argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    hostname: argocd-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
                     tls: true
                   ingressGrpc:
                     enabled: true
                     annotations: 
                       nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
                     ingressClassName: "nginx"
-                    hostname: argocd-grpc-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    hostname: argocd-grpc-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
                     tls: true
+                  certificate:
+                    enabled: true
+                    domain: argocd-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+                    additionalHosts:
+                      - argocd-grpc-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+                    issuer:
+                      group: "cert-manager.io"
+                      kind: "ClusterIssuer"
+                      name: "lets-encrypt-http-issuer"
                 repoServer:
                   resources:
                     requests:
@@ -116,8 +126,15 @@ spec:
                     ingressClassName: "nginx"
                     annotations:
                       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-                    hostname: argocd-appset-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    hostname: argocd-appset-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
                     tls: true
+                  certificate:
+                    enabled: true
+                    domain: argocd-appset-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+                    issuer:
+                      group: "cert-manager.io"
+                      kind: "ClusterIssuer"
+                      name: "lets-encrypt-http-issuer"
           - name: crossplane
             namespace: crossplane-system
             version: 1.16.0
@@ -242,9 +259,6 @@ spec:
               toHost:
                 ingresses:
                   enabled: true
-                customResources:
-                  demorepositories.demo.loft.sh:
-                    enabled: true
               fromHost:
                 nodes:
                   enabled: true
@@ -277,6 +291,9 @@ spec:
                     ephemeral-storage: 500Mi
                     cpu: 500m
                     memory: 1Gi
+                persistence:
+                  volumeClaim:
+                    storageClass: "gp2"
         accessPoint:
           ingress: {}
         spaceTemplate:
@@ -578,6 +595,9 @@ spec:
                   enabled: true
                   selector:
                     all: true
+                customResources:
+                  demorepositories.demo.loft.sh:
+                    enabled: true
             controlPlane:
               backingStore:
                 etcd:
