@@ -615,7 +615,7 @@ spec:
               project: default
               source:
                 kustomize:
-                  namePrefix: {{ .Values.loft.virtualClusterName }}-app-pr-{{`{{number}}`}}-
+                  namePrefix: app-pr-{{`{{number}}`}}-
                   patches:
                     - patch: |-
                         - op: replace
@@ -627,7 +627,7 @@ spec:
                       target:
                         kind: PullRequestEnvironment
                         name: vcluster
-                path: kustomize-pr-rp/
+                path: kustomize-pr/
                 repoURL: https://github.com/bmutziu/{{ .Values.loft.virtualClusterName }}-app.git
                 targetRevision: '{{`{{head_sha}}`}}'
               syncPolicy:
