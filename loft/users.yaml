@@ -7,7 +7,7 @@ spec:
   owner:
     team: loft-admins
   username: anna-smith
-  email: anna.smith@acme.com
+  email: bmutziu@hotmail.com
   subject: anna-smith
   access:
     - name: loft-access
@@ -36,7 +36,7 @@ spec:
   owner:
     team: loft-admins
   username: eric-jones
-  email: eric.jones@acme.com
+  email: bmutziu@yahoo.com
   subject: eric-jones
   access:
     - name: loft-access

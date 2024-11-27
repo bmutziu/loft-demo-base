@@ -1,10 +1,15 @@
-apiVersion: storage.loft.sh/v1
-kind: AccessKey
+apiVersion: management.loft.sh/v1
+kind: OwnedAccessKey
 metadata:
-  name: admin-user-72tnz
-  uid: 5e4ecd5c-65a6-4cc2-99e3-1b4651844d1d
+  name: admin-user-rk8fx
+  uid: 3f929b87-78c4-4cdb-b87d-59c29a4e43dc
 spec:
-  displayName: demo-env-access-key
+  displayName: Admin Access Key
   key: REPLACE_KEY
-  type: User
   user: admin
+  ttl: 2419200
+  scope:
+    projects:
+      - project: '*'
+    allowLoftCli: true
+  type: User

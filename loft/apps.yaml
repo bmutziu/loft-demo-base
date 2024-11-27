@@ -23,10 +23,10 @@ spec:
         className: "nginx"
         annotations: {}
         hosts:
-          - host: helm-dashboard-REPLACE_BASE_DOMAIN
+          - host: helm-dashboard-vcluster-platform.test.deepseadevops.net
             paths:
               - path: /
                 pathType: ImplementationSpecific
         tls:
           - hosts:
-              - helm-dashboard-REPLACE_BASE_DOMAIN
+              - helm-dashboard-vcluster-platform.test.deepseadevops.net

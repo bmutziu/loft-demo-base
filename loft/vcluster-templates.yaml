@@ -1,7 +1,7 @@
 apiVersion: management.loft.sh/v1
 kind: VirtualClusterTemplate
 metadata:
-  name: vcluster-pro-template
+  name: vcluster-pro-template-orig
   labels:
     app.kubernetes.io/instance: loft-configuration
 spec:
@@ -15,7 +15,8 @@ spec:
       metadata: {}
     pro: {}
     helmRelease:
-      chart: {}
+      chart:
+        version: v0.21.0
       values: |-
         # Below you can configure the virtual cluster
         isolation:
@@ -49,6 +50,8 @@ spec:
         pro:
           enabled: true
         helmRelease:
+          chart:
+            version: 0.21.0
           values: |-
             # Below you can configure the virtual cluster
             isolation:
@@ -99,7 +102,8 @@ spec:
         pro:
           enabled: true
         helmRelease:
-          chart: {}
+          chart:
+            version: 0.21.0
           values: |-
             # Below you can configure the virtual cluster
             isolation:
@@ -132,6 +136,7 @@ metadata:
   name: preview-template
 spec:
   displayName: vCluster.Pro Preview Template
+  description: This virtual cluster template deploys a vCluster.Pro virtual cluster with preview settings
   template:
     metadata:
       labels:
@@ -166,7 +171,7 @@ spec:
       enabled: true
     helmRelease:
       chart: 
-        version: v0.19.3
+        version: 0.21.0
       values: |-
         sync:
           ingresses:
