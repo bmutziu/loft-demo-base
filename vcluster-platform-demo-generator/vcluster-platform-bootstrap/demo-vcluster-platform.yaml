@@ -27,12 +27,12 @@ spec:
         values: |-
           admin:
             create: true
-            password: PLACEHOLDER
+            username: admin
 
           ingress:
             enabled: true
             annotations:
-              cert-manager.io/cluster-issuer: lets-encrypt-http-issuer
+              cert-manager.io/issuer: lets-encrypt-http-issuer
             ingressClass: nginx
             host: "{{ .Values.domain }}"
             tls:
@@ -40,7 +40,7 @@ spec:
               secret: "vcluster-platform-tls"
 
           certIssuer:
-            create: true # Change this if you already have your own cert-issuer
+            create: false # Change this if you already have your own cert-issuer
             name: lets-encrypt-http-issuer
             email: "b.mutiu@deepsea.ai" # REQUIRED
             secretName: vcluster-platform-letsencrypt-credentials
