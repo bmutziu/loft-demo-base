@@ -6,7 +6,7 @@ spec:
   displayName: Demo Argo CD
   description: Argo CD fro a HVC Platform Demo Environment Generator
   owner:
-    user: kurtmadel
+    user: admin
   recommendedApp:
     - virtualcluster
   defaultNamespace: argocd

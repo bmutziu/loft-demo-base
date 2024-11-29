@@ -47,68 +47,68 @@ spec:
               uiLogoURL: '{{ .Values.uiLogoURL }}'
           - name: demo-vcluster-platform-configure-admins
             namespace: loft
-#          - name: demo-argocd
-#            namespace: argocd
-#            releaseName: argocd
-#            version: 7.3.6
-#            parameters: |
-#              appValues: |
-#                configs:
-#                  cm:
-#                    create: true
-#                    application.resourceTrackingMethod: annotation
-#                  params:
-#                    "server.insecure": true
-#                    timeout.reconciliation: 0
-#                  rbac:
-#                    policy.csv: |-
-#                      g, Administration, role:admin
-#                      g, Sales, role:admin
-#                      g, Engineering, role:admin
-#                server:
-#                  ingress:
-#                    enabled: true
-#                    annotations:
-#                      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-#                      cert-manager.io/cluster-issuer: lets-encrypt-http-issuer
-#                      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-#                    ingressClassName: "nginx"
-#                    hostname: argocd-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
-#                    tls: true
-#                  ingressGrpc:
-#                    enabled: true
-#                    annotations:
-#                      cert-manager.io/cluster-issuer: lets-encrypt-http-issuer
-#                      nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
-#                    ingressClassName: "nginx"
-#                    hostname: argocd-grpc-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
-#                    tls: true
-#                  certificate:
-#                    enabled: true
-#                    domain: argocd-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
-#                    additionalHosts:
-#                      - argocd-grpc-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
-#                    issuer:
-#                      group: "cert-manager.io"
-#                      kind: "ClusterIssuer"
-#                      name: "lets-encrypt-http-issuer"
-#                ## ApplicationSet controller
-#                applicationSet:
-#                  enabled: true
-#                  ingress:
-#                    enabled: true
-#                    ingressClassName: "nginx"
-#                    annotations:
-#                      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-#                    hostname: argocd-appset-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
-#                    tls: true
-#                  certificate:
-#                    enabled: true
-#                    domain: argocd-appset-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
-#                    issuer:
-#                      group: "cert-manager.io"
-#                      kind: "ClusterIssuer"
-#                      name: "lets-encrypt-http-issuer"
+          - name: demo-argocd
+            namespace: argocd
+            releaseName: argocd
+            version: 7.3.6
+            parameters: |
+              appValues: |
+                configs:
+                  cm:
+                    create: true
+                    application.resourceTrackingMethod: annotation
+                  params:
+                    "server.insecure": true
+                    timeout.reconciliation: 0
+                  rbac:
+                    policy.csv: |-
+                      g, Administration, role:admin
+                      g, Sales, role:admin
+                      g, Engineering, role:admin
+                server:
+                  ingress:
+                    enabled: true
+                    annotations:
+                      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+                      cert-manager.io/issuer: lets-encrypt-http-issuer
+                      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+                    ingressClassName: "nginx"
+                    hostname: argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    tls: true
+                  ingressGrpc:
+                    enabled: true
+                    annotations:
+                      cert-manager.io/issuer: lets-encrypt-http-issuer
+                      nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+                    ingressClassName: "nginx"
+                    hostname: argocd-grpc-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    tls: true
+                  certificate:
+                    enabled: true
+                    domain: argocd-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    additionalHosts:
+                      - argocd-grpc-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    issuer:
+                      group: "cert-manager.io"
+                      kind: "Issuer"
+                      name: "lets-encrypt-http-issuer"
+                ## ApplicationSet controller
+                applicationSet:
+                  enabled: true
+                  ingress:
+                    enabled: true
+                    ingressClassName: "nginx"
+                    annotations:
+                      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+                    hostname: argocd-appset-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    tls: true
+                  certificate:
+                    enabled: true
+                    domain: argocd-appset-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
+                    issuer:
+                      group: "cert-manager.io"
+                      kind: "Issuer"
+                      name: "lets-encrypt-http-issuer"
 #          - name: demo-crossplane
 #            namespace: crossplane-system
 #            version: 1.16.0
@@ -177,6 +177,22 @@ spec:
           metadata:
             name: lets-encrypt-http-issuer
             namespace: loft
+          spec:
+            acme:
+              email: b.mutiu@deepsea.ai
+              privateKeySecretRef:
+                name: vcluster-platform-letsencrypt-credentials
+              server: https://acme-v02.api.letsencrypt.org/directory
+              solvers:
+              - http01:
+                  ingress:
+                    class: nginx
+          ---
+          apiVersion: cert-manager.io/v1
+          kind: Issuer
+          metadata:
+            name: lets-encrypt-http-issuer
+            namespace: argocd
           spec:
             acme:
               email: b.mutiu@deepsea.ai
