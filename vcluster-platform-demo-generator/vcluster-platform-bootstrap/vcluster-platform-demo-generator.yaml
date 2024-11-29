@@ -45,8 +45,8 @@ spec:
               domain: >-
                 {{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
               uiLogoURL: '{{ .Values.uiLogoURL }}'
-#          - name: demo-vcluster-platform-configure-admins
-#            namespace: loft
+          - name: demo-vcluster-platform-configure-admins
+            namespace: loft
 #          - name: demo-argocd
 #            namespace: argocd
 #            releaseName: argocd

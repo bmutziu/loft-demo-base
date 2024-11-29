@@ -61,4 +61,4 @@ spec:
 
         kubectl annotate clusters loft-cluster domain=test.deepseadevops.net
 
-        # kubectl delete project default
+        kubectl delete project default
