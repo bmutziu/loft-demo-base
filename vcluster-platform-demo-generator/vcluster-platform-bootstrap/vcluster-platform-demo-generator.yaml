@@ -112,11 +112,11 @@ spec:
           - name: demo-crossplane
             namespace: crossplane-system
             version: 1.16.0
-#          - name: demo-hvc-platform-gitops
-#            namespace: argocd
-#            parameters: |
-#              virtualClusterDomain: >-
-#                {{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+          - name: demo-hvc-platform-gitops
+            namespace: argocd
+            parameters: |
+              virtualClusterDomain: >-
+                {{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
         objects: |
           apiVersion: v1
           kind: Namespace

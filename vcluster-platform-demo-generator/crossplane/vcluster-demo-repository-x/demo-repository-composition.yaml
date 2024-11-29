@@ -128,7 +128,7 @@ spec:
               fmt: |
                 replicaCount: 1
                 image:
-                  repository: ghcr.io/loft-demos/%s
+                  repository: ghcr.io/bmutziu/%s
                   pullPolicy: IfNotPresent
                   # use Chart appVersion if not set as value
                   tag: ""
@@ -248,11 +248,11 @@ spec:
                         server: '{{server}}'
                       info:
                         - name: GitHub Repo
-                          value: https://github.com/loft-demos/%s/
+                          value: https://github.com/bmutziu/%s/
                       project: default
                       source:
                         path: k8s-manifests/{{metadata.labels.env}}/
-                        repoURL: https://github.com/loft-demos/%s.git
+                        repoURL: https://github.com/bmutziu/%s.git
                         targetRevision: main
                       syncPolicy:
                         automated:

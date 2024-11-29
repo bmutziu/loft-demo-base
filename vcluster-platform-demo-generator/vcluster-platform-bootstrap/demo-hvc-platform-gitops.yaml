@@ -30,35 +30,35 @@ spec:
         kubectl delete pod -n argocd $POD
 
 
-        cat <<EOF | kubectl apply -f -
+        #cat <<EOF | kubectl apply -f -
 
-        apiVersion: argoproj.io/v1alpha1
+        #apiVersion: argoproj.io/v1alpha1
 
-        kind: Application
+        #kind: Application
 
-        metadata:
-          name: vcluster-platform-gitops
-          namespace: argocd
-        spec:
-          destination:
-            server: https://kubernetes.default.svc
-          project: default
-          source:
-            path: vcluster-platform-demo-generator/vcluster-platform-gitops
-            repoURL: https://github.com/bmutziu/loft-demo-base.git
-            targetRevision: {{ .Values.branch}}
-            kustomize:
-              patches:
-                - target:
-                    kind: Project
-                  patch: |-
-                    - op: replace
-                      path: /spec/argoCD/sso/host
-                      value: "https://argocd-{{ .Values.virtualClusterDomain}}"
-          syncPolicy:
-            automated:
-              prune: true
-        EOF
+        #metadata:
+        #  name: vcluster-platform-gitops
+        #  namespace: argocd
+        #spec:
+        #  destination:
+        #    server: https://kubernetes.default.svc
+        #  project: default
+        #  source:
+        #    path: vcluster-platform-demo-generator/vcluster-platform-gitops
+        #    repoURL: https://github.com/bmutziu/loft-demo-base.git
+        #    targetRevision: {{ .Values.branch}}
+        #    kustomize:
+        #      patches:
+        #        - target:
+        #            kind: Project
+        #          patch: |-
+        #            - op: replace
+        #              path: /spec/argoCD/sso/host
+        #              value: "https://argocd-{{ .Values.virtualClusterDomain}}"
+        #  syncPolicy:
+        #    automated:
+        #      prune: true
+        #EOF
 
         cat <<EOF | kubectl apply -f -
 
@@ -76,7 +76,7 @@ spec:
         spec:
           project: default
           source:
-            repoURL: https://github.com/loft-demos/loft-demo-base
+            repoURL: https://github.com/bmutziu/loft-demo-base
             targetRevision: {{ .Values.branch}}
             path: vcluster-platform-demo-generator/argocd
           destination:
