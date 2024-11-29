@@ -109,9 +109,9 @@ spec:
                       group: "cert-manager.io"
                       kind: "Issuer"
                       name: "lets-encrypt-http-issuer"
-#          - name: demo-crossplane
-#            namespace: crossplane-system
-#            version: 1.16.0
+          - name: demo-crossplane
+            namespace: crossplane-system
+            version: 1.16.0
 #          - name: demo-hvc-platform-gitops
 #            namespace: argocd
 #            parameters: |
