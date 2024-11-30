@@ -296,8 +296,8 @@ spec:
                   patches:
                     - path: metadata.annotations["cert-manager.io/issuer"]
                       reference:
-                      apiVersion: cert-manager.io/v1
-                      kind: Issuer
+                        apiVersion: cert-manager.io/v1
+                        kind: Issuer
                 customResources:
                   certificates.cert-manager.io:
                     enabled: true
