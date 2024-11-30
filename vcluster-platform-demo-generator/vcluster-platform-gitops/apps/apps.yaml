@@ -10,7 +10,7 @@ spec:
     team: loft-admins
   recommendedApp:
     - virtualcluster
-  defaultNamespace: loft
+  defaultNamespace: vcluster-platform
   icon: https://www.vcluster.com/pro/docs/media/vclusterpro_orange.svg
   config:
     chart:
@@ -39,7 +39,7 @@ spec:
           ingress:
             enabled: true
             annotations:
-              cert-manager.io/cluster-issuer: lets-encrypt-http-issuer
+              cert-manager.io/issuer: lets-encrypt-http-issuer
             ingressClass: nginx
             host: "{{ .Values.domain }}"
             tls:
@@ -47,7 +47,7 @@ spec:
               secret: "vcluster-platform-tls"
 
           certIssuer:
-            create: true # Change this if you already have your own cert-issuer
+            create: false # Change this if you already have your own cert-issuer
             name: lets-encrypt-http-issuer
             email: "b.mutiu@deepsea.ai" # REQUIRED
             secretName: vcluster-platform-letsencrypt-credentials
@@ -195,7 +195,7 @@ spec:
       config:
         chart:
           name: vcluster-platform
-          version: 4.1.0-alpha.24
+          version: 4.2.0-alpha.6
           repoURL: https://charts.loft.sh/
         values: |-
           admin:
@@ -266,7 +266,7 @@ spec:
           label: Logo Background Color
           description: LogoBackgroundColor is the color value to use as the background color for the logo
           defaultValue: '#001529'
-      version: 0.41.0-alpha.24
+      version: 0.42.0-alpha.6
 ---
 apiVersion: management.loft.sh/v1
 kind: App
@@ -345,7 +345,6 @@ spec:
 
         kubectl annotate clusters loft-cluster kyverno={{
         .Values.kyverno }}
-
 ---
 apiVersion: management.loft.sh/v1
 kind: App
@@ -515,12 +514,12 @@ spec:
         #EOF
 
 
-        while ! kubectl get secret ghcr-login-secret -n loft; do
+        while ! kubectl get secret ghcr-login-secret -n vcluster-platform; do
           echo "Waiting for ghcr-login-secret...";
           sleep 1; 
         done
 
-        PULL_SECRET=$(kubectl get secret ghcr-login-secret -n loft -o
+        PULL_SECRET=$(kubectl get secret ghcr-login-secret -n vcluster-platform -o
         jsonpath="{.data['\.dockerconfigjson']}")
 
         cat <<EOF | kubectl apply -f -
@@ -655,12 +654,12 @@ spec:
           sleep 1;
         done
 
-        while ! kubectl get secret oidc-secret -n loft; do
+        while ! kubectl get secret oidc-secret -n vcluster-platform; do
           echo "Waiting for oidc-secret...";
           sleep 1;
         done
 
-        OIDC_CLIENT_SECRET=$(kubectl get secret oidc-secret -n loft -o
+        OIDC_CLIENT_SECRET=$(kubectl get secret oidc-secret -n vcluster-platform -o
         jsonpath="{.data.clientSecret}" | base64 -d)
 
         cat <<EOF | kubectl apply -f -
@@ -1088,7 +1087,7 @@ spec:
                                 clientID: PATCHED
                                 component: oidcServer
                               name: loft-argocd-oidc-secret
-                              namespace: loft
+                              namespace: vcluster-platform
                             stringData:
                               clientID: PATCHED
                               clientSecret: '$OIDC_CLIENT_SECRET'

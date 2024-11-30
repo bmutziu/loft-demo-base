@@ -48,18 +48,18 @@ spec:
               vault: '{{ .Values.vault }}'
             annotations:
               loft.sh/custom-links: >-
-                https://{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+                https://{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
         apps:
           - name: vcluster-platform-demo
-            namespace: loft
+            namespace: vcluster-platform
             version: 4.1.0
             parameters: |
               uiLogoURL: '{{ .Values.uiLogoURL }}'
               logoBackgroundColor: '{{ .Values.logoBackgroundColor }}'
               domain: >-
-                {{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+                {{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
           - name: vcluster-platform-demo-configure-admins
-            namespace: loft
+            namespace: vcluster-platform
             parameters: |
               eso: '{{ .Values.eso }}'
               kyverno: '{{ .Values.kyverno }}'
@@ -89,7 +89,7 @@ spec:
                     enabled: true
                     annotations:
                       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-                      cert-manager.io/cluster-issuer: lets-encrypt-http-issuer
+                      cert-manager.io/issuer: lets-encrypt-http-issuer
                       nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
                     ingressClassName: "nginx"
                     hostname: argocd-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
@@ -97,6 +97,7 @@ spec:
                   ingressGrpc:
                     enabled: true
                     annotations: 
+                      cert-manager.io/issuer: lets-encrypt-http-issuer
                       nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
                     ingressClassName: "nginx"
                     hostname: argocd-grpc-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
@@ -108,7 +109,7 @@ spec:
                       - argocd-grpc-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
                     issuer:
                       group: "cert-manager.io"
-                      kind: "ClusterIssuer"
+                      kind: "Issuer"
                       name: "lets-encrypt-http-issuer"
                 repoServer:
                   resources:
@@ -126,14 +127,14 @@ spec:
                     ingressClassName: "nginx"
                     annotations:
                       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-                    hostname: argocd-appset-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+                    hostname: argocd-appset-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
                     tls: true
                   certificate:
                     enabled: true
-                    domain: argocd-appset-{{ .Values.loft.virtualClusterName }}.test.deepseadevops.net
+                    domain: argocd-appset-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
                     issuer:
                       group: "cert-manager.io"
-                      kind: "ClusterIssuer"
+                      kind: "Issuer"
                       name: "lets-encrypt-http-issuer"
           - name: crossplane
             namespace: crossplane-system
@@ -151,13 +152,13 @@ spec:
           apiVersion: v1
           kind: Namespace
           metadata:
-            name: loft
+            name: vcluster-platform
           ---
           apiVersion: v1
           kind: Secret
           metadata:
             name: oidc-secret
-            namespace: loft
+            namespace: vcluster-platform
             labels:
               loft.sh/project-secret-name: oidc-secret
           type: Opaque
@@ -166,7 +167,7 @@ spec:
           kind: Secret
           metadata:
             name: ghcr-login-secret
-            namespace: loft
+            namespace: vcluster-platform
             labels:
               loft.sh/project-secret-name: ghcr-login-secret
           data:
@@ -243,6 +244,39 @@ spec:
             labels:
               loft.sh/project-secret-name: crossplane-github-provider-secret
           type: Opaque
+          ---
+          apiVersion: cert-manager.io/v1
+          kind: Issuer
+          metadata:
+            name: lets-encrypt-http-issuer
+            namespace: vcluster-platform
+          spec:
+            acme:
+              email: b.mutiu@deepsea.ai
+              privateKeySecretRef:
+                name: vcluster-platform-letsencrypt-credentials
+              server: https://acme-v02.api.letsencrypt.org/directory
+              solvers:
+                - http01:
+                    ingress:
+                      class: nginx
+          ---
+          apiVersion: cert-manager.io/v1
+          kind: Issuer
+          metadata:
+            name: lets-encrypt-http-issuer
+            namespace: argocd
+          spec:
+            acme:
+              email: b.mutiu@deepsea.ai
+              privateKeySecretRef:
+                name: vcluster-platform-letsencrypt-credentials
+              server: https://acme-v02.api.letsencrypt.org/directory
+              solvers:
+                - http01:
+                    ingress:
+                      class: nginx
+          ---
         pro:
           enabled: true
         helmRelease:
@@ -252,18 +286,50 @@ spec:
             external:
               platform:
                 autoSleep:
-                  afterInactivity: 42000
+                  afterInactivity: 39600
                 autoDelete:
                   afterInactivity: 7620000
             sync:
               toHost:
                 ingresses:
                   enabled: true
+                  patches:
+                    - path: metadata.annotations["cert-manager.io/issuer"]
+                      reference:
+                      apiVersion: cert-manager.io/v1
+                      kind: Issuer
+                customResources:
+                  certificates.cert-manager.io:
+                    enabled: true
+                    patches:
+                      - path: spec.secretName
+                        reference:
+                          apiVersion: v1
+                          kind: Secret
+                      - path: spec.issuerRef
+                        reference:
+                          apiVersion: cert-manager.io/v1
+                          kind: Issuer
+                          kindPath: kind
+                          namePath: name
+                      - path: status.nextPrivateKeySecretName
+                        reference:
+                          apiVersion: v1
+                          kind: Secret
+                  issuers.cert-manager.io:
+                    enabled: true
+                    patches:
+                      - path: spec.acme.privateKeySecretRef.name
+                        reference:
+                          apiVersion: v1
+                          kind: Secret
+                  demorepositories.demo.loft.sh:
+                    enabled: true
               fromHost:
-                nodes:
-                  enabled: true
-                  selector:
-                    all: true
+                customResources:
+                  clusterissuers.cert-manager.io:
+                    enabled: true
+                    scope: "Cluster"
             controlPlane:
               backingStore:
                 etcd:
@@ -271,12 +337,7 @@ spec:
                     enabled: true
               distro:
                 k8s:
-                  apiServer:
-                    image:
-                      tag: '{{ .Values.k8sVersion }}'
-                  controllerManager:
-                    image:
-                      tag: '{{ .Values.k8sVersion }}'
+                  version: '{{ .Values.k8sVersion }}'
               coredns:
                 embedded: true
               statefulSet:
@@ -396,7 +457,7 @@ spec:
                 .Values.loft.clusterAnnotations.domain }}
         apps:
           - name: vcluster-platform-demo
-            namespace: loft
+            namespace: vcluster-platform
             version: 0.410.2-beta.2
             parameters: |
               uiLogoURL: '{{ .Values.uiLogoURL }}'
@@ -405,7 +466,7 @@ spec:
                 {{ .Values.loft.virtualClusterName }}.{{
                 .Values.loft.clusterAnnotations.domain }}
           - name: vcluster-platform-demo-configure-admins
-            namespace: loft
+            namespace: vcluster-platform
             parameters: |
               eso: '{{ .Values.eso }}'
               kyverno: '{{ .Values.kyverno }}'
@@ -480,13 +541,13 @@ spec:
           apiVersion: v1
           kind: Namespace
           metadata:
-            name: loft
+            name: vcluster-platform
           ---
           apiVersion: v1
           kind: Secret
           metadata:
             name: oidc-secret
-            namespace: loft
+            namespace: vcluster-platform
             labels:
               loft.sh/project-secret-name: oidc-secret
           type: Opaque
@@ -495,7 +556,7 @@ spec:
           kind: Secret
           metadata:
             name: ghcr-login-secret
-            namespace: loft
+            namespace: vcluster-platform
             labels:
               loft.sh/project-secret-name: ghcr-login-secret
           data:
@@ -595,9 +656,6 @@ spec:
                   enabled: true
                   selector:
                     all: true
-                customResources:
-                  demorepositories.demo.loft.sh:
-                    enabled: true
             controlPlane:
               backingStore:
                 etcd:
@@ -726,8 +784,8 @@ spec:
                 .Values.loft.clusterAnnotations.domain }}
         apps:
           - name: vcluster-platform-demo
-            namespace: loft
-            version: 4.1.0-alpha.24
+            namespace: vcluster-platform
+            version: 0.42.0-alpha.6
             parameters: |
               uiLogoURL: '{{ .Values.uiLogoURL }}'
               logoBackgroundColor: '{{ .Values.logoBackgroundColor }}'
@@ -735,7 +793,7 @@ spec:
                 {{ .Values.loft.virtualClusterName }}.{{
                 .Values.loft.clusterAnnotations.domain }}
           - name: vcluster-platform-demo-configure-admins
-            namespace: loft
+            namespace: vcluster-platform
             parameters: |
               eso: '{{ .Values.eso }}'
               kyverno: '{{ .Values.kyverno }}'
@@ -810,13 +868,13 @@ spec:
           apiVersion: v1
           kind: Namespace
           metadata:
-            name: loft
+            name: vcluster-platform
           ---
           apiVersion: v1
           kind: Secret
           metadata:
             name: oidc-secret
-            namespace: loft
+            namespace: vcluster-platform
             labels:
               loft.sh/project-secret-name: oidc-secret
           type: Opaque
@@ -825,7 +883,7 @@ spec:
           kind: Secret
           metadata:
             name: ghcr-login-secret
-            namespace: loft
+            namespace: vcluster-platform
             labels:
               loft.sh/project-secret-name: ghcr-login-secret
           data:
@@ -906,12 +964,12 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            version: 0.21.1
+            version: 0.22.0-alpha.1
           values: |
             external:
               platform:
                 autoSleep:
-                  afterInactivity: 34200
+                  afterInactivity: 39600
                 autoDelete:
                   afterInactivity: 7620000
             sync:
@@ -1027,7 +1085,7 @@ spec:
             the logo (#cfcfcf is a good for darker logos, #001529 for lighter logos)
           defaultValue: '#001529'
           section: UI Customization
-      version: 0.410.24
+      version: 0.420.6
   access:
     - verbs:
         - '*'
