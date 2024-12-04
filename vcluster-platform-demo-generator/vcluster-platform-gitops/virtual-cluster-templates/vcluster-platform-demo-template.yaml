@@ -345,13 +345,13 @@ spec:
                   # Limits are resource limits for the container
                   limits:
                     ephemeral-storage: 8Gi
-                    memory: 4Gi
+                    memory: 6Gi
                     cpu: 2
                   # Requests are minimal resources that will be consumed by the container
                   requests:
                     ephemeral-storage: 500Mi
                     cpu: 500m
-                    memory: 1Gi
+                    memory: 2Gi
                 persistence:
                   volumeClaim:
                     storageClass: "gp2"
