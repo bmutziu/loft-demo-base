@@ -17,11 +17,12 @@ spec:
       name: vcluster-platform
       repoURL: https://charts.loft.sh/
   versions:
-    - icon: https://www.vcluster.com/pro/docs/media/vclusterpro_orange.svg
+    - version: 4.1.1
+      icon: https://www.vcluster.com/pro/docs/media/vclusterpro_orange.svg
       config:
         chart:
           name: vcluster-platform
-          version: 4.1.0
+          version: 4.1.1
           repoURL: https://charts.loft.sh/
         values: |-
           admin:
@@ -108,7 +109,6 @@ spec:
           label: Logo Background Color
           description: LogoBackgroundColor is the color value to use as the background color for the logo
           defaultValue: '#001529'
-      version: 4.1.0
     - icon: https://www.vcluster.com/pro/docs/media/vclusterpro_orange.svg
       config:
         chart:
@@ -191,11 +191,12 @@ spec:
           description: LogoBackgroundColor is the color value to use as the background color for the logo
           defaultValue: '#001529'
       version: 0.410.2-beta.2
-    - icon: https://www.vcluster.com/pro/docs/media/vclusterpro_orange.svg
+    - version: 0.42.0-alpha.7
+      icon: https://www.vcluster.com/pro/docs/media/vclusterpro_orange.svg
       config:
         chart:
           name: vcluster-platform
-          version: 4.2.0-alpha.6
+          version: 4.2.0-alpha.7
           repoURL: https://charts.loft.sh/
         values: |-
           admin:
@@ -230,6 +231,8 @@ spec:
 
           config:
             loftHost: "{{ .Values.domain }}"
+            costControl:
+              enabled: true
             uiSettings:
               navBarButtons:
               - link: https://www.vcluster.com/docs/platform/
@@ -266,7 +269,6 @@ spec:
           label: Logo Background Color
           description: LogoBackgroundColor is the color value to use as the background color for the logo
           defaultValue: '#001529'
-      version: 0.42.0-alpha.6
 ---
 apiVersion: management.loft.sh/v1
 kind: App

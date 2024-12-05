@@ -30,7 +30,8 @@ spec:
     spaceTemplate:
       metadata: {}
   versions:
-    - template:
+    - version: 4.1.1
+      template:
         metadata:
           annotations:
             sleepmode.loft.sh/ignore-user-agents: argo*
@@ -52,7 +53,7 @@ spec:
         apps:
           - name: vcluster-platform-demo
             namespace: vcluster-platform
-            version: 4.1.0
+            version: 4.1.1
             parameters: |
               uiLogoURL: '{{ .Values.uiLogoURL }}'
               logoBackgroundColor: '{{ .Values.logoBackgroundColor }}'
@@ -433,7 +434,6 @@ spec:
             the logo (#cfcfcf is a good for darker logos, #001529 for lighter logos)
           defaultValue: '#001529'
           section: UI Customization
-      version: 4.1.0
     - version: 0.410.0
       template:
         metadata:
@@ -762,7 +762,8 @@ spec:
             the logo (#cfcfcf is a good for darker logos, #001529 for lighter logos)
           defaultValue: '#001529'
           section: UI Customization
-    - template:
+    - version: 0.420.7
+      template:
         metadata:
           annotations:
             sleepmode.loft.sh/ignore-user-agents: argo*
@@ -785,7 +786,7 @@ spec:
         apps:
           - name: vcluster-platform-demo
             namespace: vcluster-platform
-            version: 0.42.0-alpha.6
+            version: 0.42.0-alpha.7
             parameters: |
               uiLogoURL: '{{ .Values.uiLogoURL }}'
               logoBackgroundColor: '{{ .Values.logoBackgroundColor }}'
@@ -919,8 +920,10 @@ spec:
           metadata:
             labels:
               argocd.argoproj.io/secret-type: cluster
+              loftDemoDomain: '{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}'
               eso: '{{ .Values.eso }}'
               kyverno: '{{ .Values.kyverno }}'
+              rancher: '{{ .Values.rancher }}'
             name: cluster-local
             namespace: argocd
           stringData:
@@ -979,6 +982,9 @@ spec:
                 customResources:
                   demorepositories.demo.loft.sh:
                     enabled: true
+              fromHost:
+                nodes:
+                  enabled: true
             controlPlane:
               backingStore:
                 etcd:
@@ -1045,6 +1051,12 @@ spec:
             The MySQL Operator for Kubernetes is an operator for managing MySQL InnoDB Cluster setups inside a Kubernetes Cluster.
           type: boolean
           section: Applications to Install
+        - variable: rancher
+          label: Install Rancher
+          description: >-
+            Rancher Cluster Management
+          type: boolean
+          section: Applications to Install
         - variable: vault
           label: Install Vault
           description: >-
@@ -1085,7 +1097,6 @@ spec:
             the logo (#cfcfcf is a good for darker logos, #001529 for lighter logos)
           defaultValue: '#001529'
           section: UI Customization
-      version: 0.420.6
   access:
     - verbs:
         - '*'
