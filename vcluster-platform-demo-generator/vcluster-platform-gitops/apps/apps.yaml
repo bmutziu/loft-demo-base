@@ -538,7 +538,7 @@ spec:
             server: https://kubernetes.default.svc
           project: default
           source:
-            path: vcluster-gitops-no
+            path: vcluster-gitops
             repoURL: https://github.com/bmutziu/{{ .Values.loft.virtualClusterName }}-app.git
             targetRevision: HEAD
             kustomize:
@@ -628,7 +628,7 @@ spec:
                       target:
                         kind: PullRequestEnvironment
                         name: vcluster
-                path: kustomize-pr-no/
+                path: kustomize-pr/
                 repoURL: https://github.com/bmutziu/{{ .Values.loft.virtualClusterName }}-app.git
                 targetRevision: '{{`{{head_sha}}`}}'
               syncPolicy:
