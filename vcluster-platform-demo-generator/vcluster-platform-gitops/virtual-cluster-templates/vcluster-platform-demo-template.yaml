@@ -77,7 +77,7 @@ spec:
                     application.resourceTrackingMethod: annotation
                   params:
                     "server.insecure": true
-                    timeout.reconciliation: 0 
+                    timeout.reconciliation: 0
                   secret:
                     createSecret: true
                   rbac:
@@ -97,7 +97,7 @@ spec:
                     tls: true
                   ingressGrpc:
                     enabled: true
-                    annotations: 
+                    annotations:
                       cert-manager.io/issuer: lets-encrypt-http-issuer
                       nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
                     ingressClassName: "nginx"
