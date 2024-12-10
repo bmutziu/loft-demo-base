@@ -61,9 +61,6 @@ spec:
                 {{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
           - name: vcluster-platform-demo-configure-admins
             namespace: vcluster-platform
-            parameters: |
-              eso: '{{ .Values.eso }}'
-              kyverno: '{{ .Values.kyverno }}'
           - name: argocd
             namespace: argocd
             version: 7.6.7
@@ -206,6 +203,7 @@ spec:
               argocd.argoproj.io/secret-type: cluster
               eso: '{{ .Values.eso }}'
               kyverno: '{{ .Values.kyverno }}'
+              mysql: '{{ .Values.mysql }}'
             name: cluster-local
             namespace: argocd
           stringData:
@@ -378,7 +376,7 @@ spec:
               url: "https://argocd-appset-{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}/api/webhook"
       parameters:
         - variable: eso
-          label: Install External Secrets Operator
+          label: Install External Secrets Operator allows for demoing the ESO integration for vCluster Pro.
           description: >-
             External secret management for Kubernetes
           type: boolean
@@ -386,13 +384,13 @@ spec:
         - variable: kyverno
           label: Install Kyverno
           description: >-
-            Kubernetes Native Policy Management
+            Kubernetes Native Policy Management allows for demoning the central admission control vCluster Pro distro feature.
           type: boolean
           section: Applications to Install
         - variable: mysql
           label: Install MySQL Operator
           description: >-
-            The MySQL Operator for Kubernetes is an operator for managing MySQL InnoDB Cluster setups inside a Kubernetes Cluster.
+            Configures the database connector feature utilizing the MySQL Operator to create an InnoDB Cluster and Virtual Cluster Template configured to use a database connector. 
           type: boolean
           section: Applications to Install
         - variable: vault
@@ -467,9 +465,6 @@ spec:
                 .Values.loft.clusterAnnotations.domain }}
           - name: vcluster-platform-demo-configure-admins
             namespace: vcluster-platform
-            parameters: |
-              eso: '{{ .Values.eso }}'
-              kyverno: '{{ .Values.kyverno }}'
           - name: argocd
             namespace: argocd
             version: 7.6.7
@@ -617,6 +612,31 @@ spec:
           data:
             .dockerconfigjson: e30K
           type: kubernetes.io/dockerconfigjson
+          {{end}}
+          {{if .Values.mysql}}
+          ---
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: mysql-operator
+          ---
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: innodb-cluster-creds
+            namespace: mysql-operator
+            labels:
+              loft.sh/project-secret-name: innodb-cluster-creds
+          type: Opaque
+          ---
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: database-connector
+            namespace: vcluster-platform
+            labels:
+              loft.sh/project-secret-name: database-connector
+          type: Opaque
           {{end}}
           ---
           apiVersion: v1
@@ -776,9 +796,6 @@ spec:
               vclusterName: '{{ .Values.loft.virtualClusterName }}'
               domain: '{{ .Values.loft.clusterAnnotations.domain }}'
               team: '{{ .Values.loft.project }}'
-              kyverno: '{{ .Values.kyverno }}'
-              eso: '{{ .Values.eso }}'
-              vault: '{{ .Values.vault }}'
             annotations:
               loft.sh/custom-links: >-
                 https://{{ .Values.loft.virtualClusterName }}.{{
@@ -786,7 +803,7 @@ spec:
         apps:
           - name: vcluster-platform-demo
             namespace: vcluster-platform
-            version: 0.42.0-alpha.7
+            version: 0.42.0-beta.1
             parameters: |
               uiLogoURL: '{{ .Values.uiLogoURL }}'
               logoBackgroundColor: '{{ .Values.logoBackgroundColor }}'
@@ -795,9 +812,6 @@ spec:
                 .Values.loft.clusterAnnotations.domain }}
           - name: vcluster-platform-demo-configure-admins
             namespace: vcluster-platform
-            parameters: |
-              eso: '{{ .Values.eso }}'
-              kyverno: '{{ .Values.kyverno }}'
           - name: argocd
             namespace: argocd
             version: 7.6.7
@@ -923,6 +937,7 @@ spec:
               loftDemoDomain: '{{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}'
               eso: '{{ .Values.eso }}'
               kyverno: '{{ .Values.kyverno }}'
+              mysql: '{{ .Values.mysql }}'
               rancher: '{{ .Values.rancher }}'
             name: cluster-local
             namespace: argocd
@@ -949,6 +964,31 @@ spec:
             .dockerconfigjson: e30K
           type: kubernetes.io/dockerconfigjson
           {{end}}
+          {{if .Values.mysql}}
+          ---
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: mysql-operator
+          ---
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: innodb-cluster-creds
+            namespace: mysql-operator
+            labels:
+              loft.sh/project-secret-name: innodb-cluster-creds
+          type: Opaque
+          ---
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: database-connector
+            namespace: vcluster-platform
+            labels:
+              loft.sh/project-secret-name: database-connector
+          type: Opaque
+          {{end}}
           ---
           apiVersion: v1
           kind: Namespace
@@ -967,12 +1007,12 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            version: 0.22.0-alpha.1
+            version: 0.22.0-alpha.2
           values: |
             external:
               platform:
                 autoSleep:
-                  afterInactivity: 39600
+                  afterInactivity: 432000
                 autoDelete:
                   afterInactivity: 7620000
             sync:
@@ -1048,13 +1088,13 @@ spec:
         - variable: mysql
           label: Install MySQL Operator
           description: >-
-            The MySQL Operator for Kubernetes is an operator for managing MySQL InnoDB Cluster setups inside a Kubernetes Cluster.
+            The MySQL Operator for Kubernetes is an operator for managing MySQL InnoDB Cluster setups inside a Kubernetes Cluster and may be used with the vCluster Platform database connector feature.
           type: boolean
           section: Applications to Install
         - variable: rancher
           label: Install Rancher
           description: >-
-            Rancher Cluster Management
+            Rancher Cluster Management (requires manual configuration)
           type: boolean
           section: Applications to Install
         - variable: vault

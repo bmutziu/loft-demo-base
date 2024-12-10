@@ -191,12 +191,12 @@ spec:
           description: LogoBackgroundColor is the color value to use as the background color for the logo
           defaultValue: '#001529'
       version: 0.410.2-beta.2
-    - version: 0.42.0-alpha.7
+    - version: 0.42.0-beta.1
       icon: https://www.vcluster.com/pro/docs/media/vclusterpro_orange.svg
       config:
         chart:
           name: vcluster-platform
-          version: 4.2.0-alpha.7
+          version: 4.2.0-beta.1
           repoURL: https://charts.loft.sh/
         values: |-
           admin:
@@ -279,15 +279,6 @@ spec:
   description: Configures SSO Groups that should get admin privileges
   owner:
     team: loft-admins
-  parameters:
-    - variable: eso
-      label: ESO Enabled
-      description: >-
-        Adds a cluster annotation that denotes the vCluster Platform cluster has External Secrets Operator support.
-    - variable: kyverno
-      label: Kyverno Enabled
-      description: >-
-        Adds a cluster annotation that denotes the vCluster Platform cluster has Kyverno support.
   config:
     chart: {}
     bash:
@@ -340,13 +331,7 @@ spec:
         kubectl annotate clusters loft-cluster domainPrefix={{
         .Values.loft.virtualClusterName }}
 
-        kubectl annotate clusters loft-cluster domain=test.deepseadevops.net
-
-        kubectl annotate clusters loft-cluster eso={{
-        .Values.eso }}
-
-        kubectl annotate clusters loft-cluster kyverno={{
-        .Values.kyverno }}
+        kubectl annotate clusters loft-cluster domain={{ .Values.loft.clusterAnnotations.domain }}
 ---
 apiVersion: management.loft.sh/v1
 kind: App
@@ -576,6 +561,54 @@ spec:
               prune: true
         EOF
 
+        cat <<EOF | kubectl apply -f -
+        
+        apiVersion: argoproj.io/v1alpha1
+        
+        kind: ApplicationSet
+        
+        metadata:
+          name: vcluster-env-config
+          namespace: argocd
+        spec:
+          generators:
+            - clusters:
+                selector:
+                  matchLabels:
+                    env: "dev"
+            - clusters:
+                selector:
+                  matchLabels:
+                    env: "qa"
+            - clusters:
+                selector:
+                  matchLabels:
+                    env: "prod"
+          template:
+            metadata:
+              # name is the name of the kubernetes cluster as selected by the spec above
+              name: '{{ .Values.loft.virtualClusterName }}-app-{{`{{name}}`}}'
+            spec:
+              destination:
+                # server is the url of the 
+                server: '{{`{{server}}`}}'
+                # metadata.labels.env is the value of the env label that is being used to select kubernetes clusters 
+                # and used as sub-folder in the target git repository
+                namespace: '{{ .Values.loft.virtualClusterName }}-app-{{`{{metadata.labels.env}}`}}'
+              info:
+                - name: GitHub Repo
+                  value: https://github.com/loft-demos/{{ .Values.loft.virtualClusterName }}-app/
+              project: default
+              source:
+                path: 'k8s-manifests/{{`{{metadata.labels.env}}`}}/'
+                repoURL: https://github.com/loft-demos/{{ .Values.loft.virtualClusterName }}-app.git
+                targetRevision: main
+              syncPolicy:
+                automated:
+                  selfHeal: true
+                syncOptions:
+                  - CreateNamespace=true
+        EOF
 
         cat <<EOF | kubectl apply -f -
 
