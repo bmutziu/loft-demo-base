@@ -19,7 +19,7 @@ spec:
     helmRelease:
       chart:
         name: vcluster
-        version: 0.21.0
+        version: 0.21.1
       values: |-
         sync:
           toHost:
@@ -40,7 +40,7 @@ spec:
         apps:
           - name: demo-vcluster-platform
             namespace: loft
-            version: 4.1.0
+            version: 4.1.1
             parameters: |
               domain: >-
                 {{ .Values.loft.virtualClusterName }}.{{ .Values.loft.clusterAnnotations.domain }}
@@ -208,7 +208,7 @@ spec:
           enabled: true
         helmRelease:
           chart:
-            version: 0.21.0
+            version: 0.21.1
           values: |
             external:
               platform:
@@ -295,7 +295,7 @@ spec:
             Allows overriding the default branch used for the vCluster Platform
             Demo Generator GitOps repository
           defaultValue: main
-      version: 4.1.0
+      version: 4.1.1
     - template:
         metadata:
           annotations:
