@@ -1,8 +1,8 @@
 apiVersion: management.loft.sh/v1
 kind: OwnedAccessKey
 metadata:
-  name: admin-user-rk8fx
-  uid: 3f929b87-78c4-4cdb-b87d-59c29a4e43dc
+  name: admin-user-k6tmp
+  uid: b9ab1e21-3a0d-47cc-827b-ebca113eab0a
 spec:
   displayName: Admin Access Key
   key: REPLACE_KEY

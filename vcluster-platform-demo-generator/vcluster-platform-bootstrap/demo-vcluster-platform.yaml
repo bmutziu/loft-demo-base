@@ -22,7 +22,7 @@ spec:
       config:
         chart:
           name: vcluster-platform
-          version: 4.1.0
+          version: 4.1.1
           repoURL: https://charts.loft.sh/
         values: |-
           admin:
@@ -89,4 +89,4 @@ spec:
           label: Logo logoURL
           description: Will update the vCluster Platform config ui settings logoURL
           defaultValue: https://www.vcluster.com/pro/docs/media/vclusterpro_orange.svg
-      version: 4.1.0
+      version: 4.1.1
