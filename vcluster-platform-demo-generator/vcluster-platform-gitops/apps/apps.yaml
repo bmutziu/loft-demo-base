@@ -642,8 +642,8 @@ spec:
                 name: in-cluster
                 namespace: p-api-framework
               info:
-                - name: PRvCluster Argo CD URL
-                  value: https://argocd-app-pr-3-vcluster-rz4jn.{{ .Values.loft.clusterAnnotations.domain }}
+                - name: Several Keys for the PR
+                  value: '{{`{{number}}`}} {{`{{target_branch}}`}} {{`{{head_sha}}`}} {{`{{branch}}`}}'
                 - name: GitHub PR
                   value: https://github.com/bmutziu/{{ .Values.loft.virtualClusterName }}-app/pull/{{`{{number}}`}}
               project: default
